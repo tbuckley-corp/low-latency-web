@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Low-latency sample</title>
+    <style>
+      #wet,
+      #dry {
+        position: absolute;
+        left: 0;
+        top: 0;
+        touch-action: none;
+      }
+      #wet {
+        pointer-events: none;
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "ml-matrix": "https://unpkg.com/ml-matrix?module"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <canvas id="dry"></canvas>
+    <low-latency-canvas id="wet"></low-latency-canvas>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

@@ -1,6 +1,7 @@
 export class LineRenderer {
-  constructor(ctx) {
+  constructor(ctx, color = "black") {
     this.originalCtx = ctx;
+    this.color = color;
 
     // Create a buffer
     this.buffer = document.createElement("canvas");
@@ -94,6 +95,7 @@ export class LineRenderer {
       this.ctx.beginPath();
       this.ctx.moveTo(last.x, last.y);
       this.ctx.lineTo(p.x, p.y);
+      this.ctx.strokeStyle = this.color;
       this.ctx.stroke();
       last = p;
       this.ps.push(p);
@@ -108,6 +110,7 @@ export class LineRenderer {
       this.originalCtx.beginPath();
       this.originalCtx.moveTo(last.x, last.y);
       this.originalCtx.lineTo(p.x, p.y);
+      this.ctx.strokeStyle = this.color;
       this.originalCtx.stroke();
       last = p;
       this.predictionDirty.add(p);
@@ -132,6 +135,7 @@ export class LineRenderer {
       this.ctx.lineTo(ps[i].x, ps[i].y);
       this.dirty.add(ps[i]);
     }
+    this.ctx.strokeStyle = this.color;
     this.ctx.stroke();
   }
 }

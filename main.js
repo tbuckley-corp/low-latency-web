@@ -17,6 +17,8 @@ const wetRenderer = new LineRenderer(
     alpha: true,
     desynchronized: true,
   })
+  // Optionally, make the "wet" line red to see the hand-off
+  // , "red"
 );
 
 // Make the canvases full-screen

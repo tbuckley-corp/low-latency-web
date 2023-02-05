@@ -1,6 +1,6 @@
 import { LineRenderer } from "./line-renderer.js";
 import { LowLatencyCanvas } from "./low-latency-canvas.js";
-import { Predictor } from "./prediction/Predictor.js";
+// import { Predictor } from "./prediction/Predictor.js";
 
 customElements.define("low-latency-canvas", LowLatencyCanvas);
 
@@ -25,8 +25,9 @@ function updateSizes() {
   dry.style.height = `${window.innerHeight}px`;
   dry.width = window.innerWidth * devicePixelRatio;
   dry.height = window.innerHeight * devicePixelRatio;
-  dryRenderer.ctx.resetTransform();
-  dryRenderer.ctx.scale(devicePixelRatio, devicePixelRatio);
+  dryRenderer.originalCtx.resetTransform();
+  dryRenderer.originalCtx.scale(devicePixelRatio, devicePixelRatio);
+  dryRenderer.update();
 
   // Inset wet layer by 5 physical pixels left/right/bottom
   // to avoid issues with rounded corners
@@ -35,6 +36,7 @@ function updateSizes() {
     window.innerHeight - 5 / devicePixelRatio
   );
   wet.style.left = `${5 / devicePixelRatio}px`;
+  wetRenderer.update();
 }
 updateSizes();
 window.addEventListener("resize", updateSizes);
@@ -42,9 +44,10 @@ window.addEventListener("resize", updateSizes);
 // Transform the low-latency canvas's rendering context to
 // offset any rotation/translation
 function updateTransforms(t) {
-  wetRenderer.ctx.resetTransform();
-  wetRenderer.ctx.translate(-5, 0); // Make up for padding
-  wetRenderer.ctx.scale(t.scale, t.scale);
+  wetRenderer.originalCtx.resetTransform();
+  wetRenderer.originalCtx.translate(-5, 0); // Make up for padding
+  wetRenderer.originalCtx.scale(t.scale, t.scale);
+  wetRenderer.update();
 }
 wet.addEventListener("canvas-change", (e) => {
   updateTransforms(e.detail);
@@ -52,13 +55,13 @@ wet.addEventListener("canvas-change", (e) => {
 updateTransforms(wet.transforms);
 
 // Handle input and render
-const predictor = new Predictor(16);
+// const predictor = new Predictor(20);
 dry.addEventListener("pointerdown", (e) => {
   if (e.pointerType === "touch" || e.pointerType === "pen") {
     dry.setPointerCapture(e.pointerId);
     wetRenderer.down({ x: e.offsetX, y: e.offsetY });
     predictor.initStrokePrediction();
-    predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
+    // predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
   }
 });
 dry.addEventListener("pointerrawupdate", (e) => {
@@ -66,8 +69,10 @@ dry.addEventListener("pointerrawupdate", (e) => {
     wetRenderer.move([{ x: e.offsetX, y: e.offsetY }]);
 
     // Render prediction
-    predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
-    const prediction = predictor.predict();
+    // predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
+    // const prediction = predictor.predict();
+    const prediction = [];
+    wetRenderer.copy(true);
     wetRenderer.prediction(prediction);
   }
 });
@@ -75,8 +80,10 @@ dry.addEventListener("pointerup", (e) => {
   if (e.pointerType === "touch" || e.pointerType === "pen") {
     const ps = wetRenderer.up();
     wet.commit(() => {
-      wetRenderer.ctx.clearRect(0, 0, wet.width, wet.height);
+      wetRenderer.clear();
+      wetRenderer.copy();
     });
     dryRenderer.stroke(ps);
+    dryRenderer.copy();
   }
 });

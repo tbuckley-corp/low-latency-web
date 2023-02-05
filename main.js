@@ -45,8 +45,14 @@ window.addEventListener("resize", updateSizes);
 // offset any rotation/translation
 function updateTransforms(t) {
   wetRenderer.originalCtx.resetTransform();
+  // First rotate to match UI
+  // Then translate (unscaled) to account for padding in physical pixels
+  // Then scale to use CSS pixels
+  // Then translate to account for offset
+  wetRenderer.originalCtx.rotate((t.rotation * Math.PI) / 180);
   wetRenderer.originalCtx.translate(-5, 0); // Make up for padding
   wetRenderer.originalCtx.scale(t.scale, t.scale);
+  wetRenderer.originalCtx.translate(t.translation.x, t.translation.y);
   wetRenderer.update();
 }
 wet.addEventListener("canvas-change", (e) => {

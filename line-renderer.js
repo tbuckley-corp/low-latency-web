@@ -74,7 +74,7 @@ export class LineRenderer {
 
   down(p) {
     this.last = p;
-    this.ps = [];
+    this.ps = [p];
 
     this.dirty.reset();
     this.predictionDirty.reset();

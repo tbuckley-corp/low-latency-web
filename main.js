@@ -1,6 +1,6 @@
 import { LineRenderer } from "./line-renderer.js";
 import { LowLatencyCanvas } from "./low-latency-canvas.js";
-// import { Predictor } from "./prediction/Predictor.js";
+import { Predictor } from "./prediction/Predictor.js";
 
 customElements.define("low-latency-canvas", LowLatencyCanvas);
 
@@ -71,13 +71,13 @@ wet.addEventListener("canvas-change", (e) => {
 updateTransforms(wet.transforms);
 
 // Handle input and render
-// const predictor = new Predictor(20);
+const predictor = new Predictor(16);
 dry.addEventListener("pointerdown", (e) => {
   if (e.pointerType === "touch" || e.pointerType === "pen") {
     dry.setPointerCapture(e.pointerId);
     wetRenderer.down({ x: e.offsetX, y: e.offsetY });
-    // predictor.initStrokePrediction();
-    // predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
+    predictor.initStrokePrediction();
+    predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
   }
 });
 dry.addEventListener("pointerrawupdate", (e) => {
@@ -85,9 +85,8 @@ dry.addEventListener("pointerrawupdate", (e) => {
     wetRenderer.move([{ x: e.offsetX, y: e.offsetY }]);
 
     // Render prediction
-    // predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
-    // const prediction = predictor.predict();
-    const prediction = [];
+    predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
+    const prediction = predictor.predict();
     wetRenderer.copy(true);
     wetRenderer.prediction(prediction);
   }

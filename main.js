@@ -21,6 +21,8 @@ const wetRenderer = new LineRenderer(
   // , "red"
 );
 
+const strokes = [];
+
 // Make the canvases full-screen
 function updateSizes() {
   dry.style.width = `${window.innerWidth}px`;
@@ -39,6 +41,12 @@ function updateSizes() {
   );
   wet.style.left = `${5 / devicePixelRatio}px`;
   wetRenderer.update();
+
+  dryRenderer.clear();
+  for (const stroke of strokes) {
+    dryRenderer.stroke(stroke);
+  }
+  dryRenderer.copy();
 }
 updateSizes();
 window.addEventListener("resize", updateSizes);
@@ -68,7 +76,7 @@ dry.addEventListener("pointerdown", (e) => {
   if (e.pointerType === "touch" || e.pointerType === "pen") {
     dry.setPointerCapture(e.pointerId);
     wetRenderer.down({ x: e.offsetX, y: e.offsetY });
-    predictor.initStrokePrediction();
+    // predictor.initStrokePrediction();
     // predictor.update(e.offsetX, e.offsetY, e.pressure, e.timeStamp);
   }
 });
@@ -87,6 +95,7 @@ dry.addEventListener("pointerrawupdate", (e) => {
 dry.addEventListener("pointerup", (e) => {
   if (e.pointerType === "touch" || e.pointerType === "pen") {
     const ps = wetRenderer.up();
+    strokes.push(ps);
     wet.commit(() => {
       wetRenderer.clear();
       wetRenderer.copy();
